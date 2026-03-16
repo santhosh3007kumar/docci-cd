@@ -1,0 +1,10 @@
+# docker-compose-build.yml
+services:
+
+  frontend:
+    build: ./myapp1
+    image: santhosh3007/frontend:v1
+
+  backend:
+    build: ./myapp2
+    image: santhosh3007/backend:v1

@@ -1,0 +1,33 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Go to project folder on EC2
+            cd dockercompose
+
+            # Get the commit SHA that triggered the CI workflow
+            IMAGE_TAG=${GITHUB_SHA::8}
+
+            # Pull backend and frontend images with both v1 and SHA tag
+            docker pull santhosh3007/frontend:v1
+            docker pull santhosh3007/frontend:$IMAGE_TAG
+            docker pull santhosh3007/backend:v1
+            docker pull santhosh3007/backend:$IMAGE_TAG
+
+            # Deploy using the SHA-tagged images
+            docker compose -f docker-compose-deploy.yml up -d

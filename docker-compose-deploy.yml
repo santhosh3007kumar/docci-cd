@@ -1,0 +1,46 @@
+# docker-compose-deploy.yml
+services:
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+  frontend:
+    image: santhosh3007/frontend:v1  # will be pulled before deployment
+    networks:
+      - app-network
+
+  backend:
+    image: santhosh3007/backend:v1   # will be pulled before deployment
+    volumes:
+      - /opt/app/backend-logs:/app/logs
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: appdb
+    volumes:
+      - /opt/app/mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+
+
+
+  
