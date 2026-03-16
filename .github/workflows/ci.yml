@@ -18,7 +18,7 @@ jobs:
 
       - name: Tag Images
         run: |
-          IMAGE_TAG=${GITHUB_SHA::8}  # first 8 chars of commit SHA
+          IMAGE_TAG=${GITHUB_SHA::8}
           docker tag santhosh3007/frontend:v1 santhosh3007/frontend:$IMAGE_TAG
           docker tag santhosh3007/backend:v1 santhosh3007/backend:$IMAGE_TAG
           echo "Tagged images with $IMAGE_TAG"

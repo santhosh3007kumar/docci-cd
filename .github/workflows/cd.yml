@@ -10,24 +10,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to EC2
+      - name: SSH to EC2 and deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Go to project folder on EC2
-            cd dockercompose
-
-            # Get the commit SHA that triggered the CI workflow
-            IMAGE_TAG=${GITHUB_SHA::8}
-
-            # Pull backend and frontend images with both v1 and SHA tag
-            docker pull santhosh3007/frontend:v1
-            docker pull santhosh3007/frontend:$IMAGE_TAG
-            docker pull santhosh3007/backend:v1
-            docker pull santhosh3007/backend:$IMAGE_TAG
-
-            # Deploy using the SHA-tagged images
+            # Ensure repo exists
+            cd ~
+            if [ ! -d "docci-cd" ]; then
+              git clone https://github.com/santhosh3007kumar/docci-cd.git
+            else
+              cd docci-cd
+              git pull
+            fi
+            cd docci-cd
+            # Pull latest images (v1 + SHA tag optional)
+            docker pull "santhosh3007/frontend:v1"
+            docker pull "santhosh3007/backend:v1"
+            # Run containers
             docker compose -f docker-compose-deploy.yml up -d
+            docker ps

@@ -1,6 +1,6 @@
-# docker-compose-build.yml
-services:
+version: "3.8"
 
+services:
   frontend:
     build: ./myapp1
     image: santhosh3007/frontend:v1
@@ -8,3 +8,23 @@ services:
   backend:
     build: ./myapp2
     image: santhosh3007/backend:v1
+    volumes:
+      - /opt/app/backend-logs:/app/logs
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: appdb
+    volumes:
+      - /opt/app/mysql-data:/var/lib/mysql
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+    depends_on:
+      - frontend
+      - backend
